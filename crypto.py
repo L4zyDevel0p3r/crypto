@@ -40,3 +40,29 @@ class Crypto:
         # Opening the file in write mode and writing the encrypted data
         with open(f"{self.name}_encrypted{self.extension}", "wb") as encrypted_file:
             encrypted_file.write(encrypted)
+
+    def decrypt(self):
+        """
+        Decrypt file
+        """
+
+        # Getting absolute file name. (Removing '_encrypted' part from encrypted file name.)
+        split_name = self.name.split("_")
+        self.name = split_name[0]
+
+        # Opening key file and read key
+        with open(f"{self.name}_key.key", "rb") as key_file:
+            self._key = key_file.read()
+
+        fernet = Fernet(self._key)
+
+        # Opening file to decrypt
+        with open(f"{self.name}_encrypted{self.extension}", "rb") as file:
+            encrypted_file = file.read()
+
+        # Decrypting the file
+        decrypted = fernet.decrypt(encrypted_file)
+
+        # Opening the file in write mode and writing the decrypted data
+        with open(f"{self.name}_decrypted{self.extension}", "wb") as decrypted_file:
+            decrypted_file.write(decrypted)

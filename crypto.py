@@ -17,6 +17,10 @@ class Crypto:
         key = Fernet.generate_key()
         self._key = key
 
+        # Saving the generated key
+        with open(f"{self.name}_key.key", "wb") as file_key:
+            file_key.write(key)
+
     def encrypt(self):
         """
         Encrypt file

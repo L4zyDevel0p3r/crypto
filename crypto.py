@@ -1,4 +1,5 @@
 from cryptography.fernet import Fernet
+from cryptography.fernet import InvalidToken
 import os
 import sys
 
@@ -83,8 +84,13 @@ class Crypto:
             sys.exit()
 
         print(f"\nDecrypting {self.name}_encrypted{self.extension}...")
-        # Decrypting the file
-        decrypted = fernet.decrypt(encrypted_file)
+
+        try:
+            # Decrypting the file
+            decrypted = fernet.decrypt(encrypted_file)
+        except InvalidToken:
+            print("Key is invalid!")
+            sys.exit()
 
         print(f"Saving {self.name}_decrypted{self.extension}...")
         # Opening the file in write mode and writing the decrypted data

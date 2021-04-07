@@ -55,15 +55,23 @@ class Crypto:
         split_name = self.name.split("_")
         self.name = split_name[0]
 
-        # Opening key file and read key
-        with open(f"{self.name}_key.key", "rb") as key_file:
-            self._key = key_file.read()
+        try:
+            # Opening key file and read key
+            with open(f"{self.name}_key.key", "rb") as key_file:
+                self._key = key_file.read()
+        except FileNotFoundError:
+            print(f"{self.name}_key.key not found!")
+            sys.exit()
 
         fernet = Fernet(self._key)
 
-        # Opening file to decrypt
-        with open(f"{self.name}_encrypted{self.extension}", "rb") as file:
-            encrypted_file = file.read()
+        try:
+            # Opening file to decrypt
+            with open(f"{self.name}_encrypted{self.extension}", "rb") as file:
+                encrypted_file = file.read()
+        except FileNotFoundError:
+            print(f"{self.name}_encrypted{self.extension} not found!")
+            sys.exit()
 
         # Decrypting the file
         decrypted = fernet.decrypt(encrypted_file)

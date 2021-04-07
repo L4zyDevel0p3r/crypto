@@ -1,5 +1,6 @@
 from cryptography.fernet import Fernet
 import os
+import sys
 
 
 class Crypto:
@@ -26,13 +27,17 @@ class Crypto:
         Encrypt file
         """
 
+        try:
+            # Opening file to encrypt
+            with open(self.file, "rb") as file:
+                original_file = file.read()
+        except FileNotFoundError:
+            print(f"{self.file} not found!")
+            sys.exit()
+
         # Generating a key
         self._generate_key()
         fernet = Fernet(self._key)
-
-        # Opening file to encrypt
-        with open(self.file, "rb") as file:
-            original_file = file.read()
 
         # Encrypting the file
         encrypted = fernet.encrypt(original_file)

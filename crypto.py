@@ -39,12 +39,21 @@ class Crypto:
         self._generate_key()
         fernet = Fernet(self._key)
 
+        print(f"\nEncrypting {self.file}...")
         # Encrypting the file
         encrypted = fernet.encrypt(original_file)
 
+        print(f"Saving {self.name}_encrypted{self.extension}...")
         # Opening the file in write mode and writing the encrypted data
         with open(f"{self.name}_encrypted{self.extension}", "wb") as encrypted_file:
             encrypted_file.write(encrypted)
+
+        print(
+            f"{self.file} was encrypted successfully.\n\n"
+            "Note:\n"
+            f"1. Keep {self.name}_key.key somewhere safe!\n"
+            f"2. Don't rename {self.name}_encrypted{self.extension} and {self.name}_key.key"
+        )
 
     def decrypt(self):
         """

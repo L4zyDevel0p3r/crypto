@@ -61,8 +61,8 @@ class Crypto:
         """
 
         # Getting absolute file name. (Removing '_encrypted' part from encrypted file name.)
-        split_name = self.name.split("_")
-        self.name = split_name[0]
+        absolute_name = self.name.replace("_encrypted", "")
+        self.name = absolute_name
 
         try:
             # Opening key file and read key
@@ -82,9 +82,13 @@ class Crypto:
             print(f"{self.name}_encrypted{self.extension} not found!")
             sys.exit()
 
+        print(f"\nDecrypting {self.name}_encrypted{self.extension}...")
         # Decrypting the file
         decrypted = fernet.decrypt(encrypted_file)
 
+        print(f"Saving {self.name}_decrypted{self.extension}...")
         # Opening the file in write mode and writing the decrypted data
         with open(f"{self.name}_decrypted{self.extension}", "wb") as decrypted_file:
             decrypted_file.write(decrypted)
+
+        print(f"{self.name}_encrypted{self.extension} was decrypted successfully.")

@@ -14,6 +14,16 @@ if len(sys.argv) >= 3:
 
 else:
     print(
-        f"usage:\n"
-        f"python main.py [encrypt|decrypt] <file>"
+        f"You can use:\n"
+        f"python main.py [encrypt|decrypt] <file>\n"
     )
+
+    option = input("Choose an option [encrypt|decrypt]: ")
+    file = input("Enter file name: ")
+    crypto = Crypto(file)
+
+    if option == "encrypt":
+        crypto.encrypt()
+
+    elif option == "decrypt":
+        crypto.decrypt()

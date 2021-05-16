@@ -5,6 +5,7 @@ import sys
 
 
 class Crypto:
+    _crypto_extension = ".hcf"
 
     def __init__(self, file: str, key_file: str = None):
         file_basename = os.path.basename(file)
@@ -46,9 +47,9 @@ class Crypto:
         # Encrypting the file
         encrypted = fernet.encrypt(original_file)
 
-        print(f"Saving {self.name}_encrypted{self.extension}...")
+        print(f"Saving {self.name}_encrypted{self.extension}{self._crypto_extension}...")
         # Opening the file in write mode and writing the encrypted data
-        with open(f"{self.name}_encrypted{self.extension}", "wb") as encrypted_file:
+        with open(f"{self.name}_encrypted{self.extension}{self._crypto_extension}", "wb") as encrypted_file:
             encrypted_file.write(encrypted)
 
         print(

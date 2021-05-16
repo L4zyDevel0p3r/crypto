@@ -6,13 +6,15 @@ import sys
 
 class Crypto:
 
-    def __init__(self, file: str):
-        name, ext = os.path.splitext(file)
+    def __init__(self, file: str, key_file: str = None):
+        file_basename = os.path.basename(file)
+        name, ext = os.path.splitext(file_basename)
         self.file = file
         # File Name
         self.name = name
         # File Extension
         self.extension = ext
+        self.key_file = key_file
         self._key = None
 
     def _generate_key(self):
@@ -20,8 +22,8 @@ class Crypto:
         self._key = key
 
         # Saving the generated key
-        with open(f"{self.name}_key.key", "wb") as file_key:
-            file_key.write(key)
+        with open(f"{self.name}_key.key", "wb") as key_file:
+            key_file.write(key)
 
     def encrypt(self):
         """
@@ -40,7 +42,7 @@ class Crypto:
         self._generate_key()
         fernet = Fernet(self._key)
 
-        print(f"\nEncrypting {self.file}...")
+        print(f"\nEncrypting {self.name}...")
         # Encrypting the file
         encrypted = fernet.encrypt(original_file)
 
@@ -50,10 +52,9 @@ class Crypto:
             encrypted_file.write(encrypted)
 
         print(
-            f"{self.file} was encrypted successfully.\n\n"
+            f"{self.name} was encrypted successfully.\n\n"
             "Note:\n"
-            f"1. Keep {self.name}_key.key somewhere safe!\n"
-            f"2. Don't rename {self.name}_encrypted{self.extension} and {self.name}_key.key"
+            f"1. Keep {self.name}_key.key somewhere safe!"
         )
 
     def decrypt(self):

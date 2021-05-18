@@ -7,15 +7,14 @@ import sys
 class Crypto:
     _crypto_extension = ".hcf"
 
-    def __init__(self, file: str, key_file: str = None):
-        file_basename = os.path.basename(file)
-        name, ext = os.path.splitext(file_basename)
+    def __init__(self, file: str):
+        self.file_basename = os.path.basename(file)
+        name, ext = os.path.splitext(self.file_basename)
         self.file = file
         # File Name
         self.name = name
         # File Extension
         self.extension = ext
-        self.key_file = key_file
         self._key = None
 
     def _generate_key(self):
@@ -43,49 +42,45 @@ class Crypto:
         self._generate_key()
         fernet = Fernet(self._key)
 
-        print(f"\nEncrypting {self.name}...")
+        print(f"\nEncrypting {self.name}{self.extension} ...")
         # Encrypting the file
         encrypted = fernet.encrypt(original_file)
 
-        print(f"Saving {self.name}_encrypted{self.extension}{self._crypto_extension}...")
+        print(f"Saving {self.name}{self.extension}{self._crypto_extension} ...")
         # Opening the file in write mode and writing the encrypted data
-        with open(f"{self.name}_encrypted{self.extension}{self._crypto_extension}", "wb") as encrypted_file:
+        with open(f"{self.name}{self.extension}{self._crypto_extension}", "wb") as encrypted_file:
             encrypted_file.write(encrypted)
 
         print(
-            f"{self.name} was encrypted successfully.\n\n"
+            f"{self.name}{self.extension} was encrypted successfully.\n\n"
             "Note:\n"
             f"1. Keep {self.name}_key.key somewhere safe!"
         )
 
-    def decrypt(self):
+    def decrypt(self, key_file: str):
         """
         Decrypt file
         """
 
-        # Getting absolute file name. (Removing '_encrypted' part from encrypted file name.)
-        absolute_name = self.name.replace("_encrypted", "")
-        self.name = absolute_name
-
         try:
             # Opening key file and read key
-            with open(f"{self.name}_key.key", "rb") as key_file:
-                self._key = key_file.read()
+            with open(f"{key_file}", "rb") as file:
+                self._key = file.read()
         except FileNotFoundError:
-            print(f"{self.name}_key.key not found!")
+            print(f"{key_file} not found!")
             sys.exit()
 
         fernet = Fernet(self._key)
 
         try:
             # Opening file to decrypt
-            with open(f"{self.name}_encrypted{self.extension}", "rb") as file:
+            with open(f"{self.file}", "rb") as file:
                 encrypted_file = file.read()
         except FileNotFoundError:
-            print(f"{self.name}_encrypted{self.extension} not found!")
+            print(f"{self.file} not found!")
             sys.exit()
 
-        print(f"\nDecrypting {self.name}_encrypted{self.extension}...")
+        print(f"\nDecrypting {self.file_basename} ...")
 
         try:
             # Decrypting the file
@@ -94,9 +89,13 @@ class Crypto:
             print("Key is invalid!")
             sys.exit()
 
-        print(f"Saving {self.name}_decrypted{self.extension}...")
+        # Removing _crypto_extension from file name
+        removed_extension = self.file_basename.replace(self._crypto_extension, "")
+        self.name, self.extension = os.path.splitext(removed_extension)
+
+        print(f"Saving {self.name}_decrypted{self.extension} ...")
         # Opening the file in write mode and writing the decrypted data
         with open(f"{self.name}_decrypted{self.extension}", "wb") as decrypted_file:
             decrypted_file.write(decrypted)
 
-        print(f"{self.name}_encrypted{self.extension} was decrypted successfully.")
+        print(f"{self.file_basename} was decrypted successfully.")

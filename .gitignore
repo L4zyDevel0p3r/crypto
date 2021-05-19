@@ -1,2 +1,7 @@
 **/__pycache__
 **/.idea
+
+# Ignoring the output files
+**/encrypted
+**/decrypted
+**/keys

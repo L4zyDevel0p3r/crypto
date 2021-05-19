@@ -38,8 +38,8 @@ class Crypto:
         self._key = key
 
         # Creating a folder inside _key_files folder with file name
-        self.make_dir(path=f"{self._key_files}{self.name}")
         dirname = f"{self._key_files}{self.name}/"
+        self.make_dir(path=dirname)
 
         # Saving the generated key
         with open(f"{dirname}{self.name}.key", "wb") as key_file:
@@ -49,10 +49,6 @@ class Crypto:
         """
         Encrypt file
         """
-
-        # Creating a folder inside _encrypted_files folder with file name
-        self.make_dir(path=f"{self._encrypted_files}{self.name}")
-        dirname = f"{self._encrypted_files}{self.name}/"
 
         try:
             # Opening file to encrypt
@@ -65,6 +61,10 @@ class Crypto:
         # Generating a key
         self._generate_key()
         fernet = Fernet(self._key)
+
+        # Creating a folder inside _encrypted_files folder with file name
+        dirname = f"{self._encrypted_files}{self.name}/"
+        self.make_dir(path=dirname)
 
         print(f"\nEncrypting {self.name}{self.extension} ...")
         # Encrypting the file
@@ -88,9 +88,13 @@ class Crypto:
         Decrypt file
         """
 
-        # Creating a folder inside _decrypted_files folder with file name
-        self.make_dir(path=f"{self._decrypted_files}{self.name}")
-        dirname = f"{self._decrypted_files}{self.name}/"
+        try:
+            # Opening file to decrypt
+            with open(f"{self.file}", "rb") as file:
+                encrypted_file = file.read()
+        except FileNotFoundError:
+            print(f"{self.file} not found!")
+            sys.exit()
 
         try:
             # Opening key file and read key
@@ -101,14 +105,6 @@ class Crypto:
             sys.exit()
 
         fernet = Fernet(self._key)
-
-        try:
-            # Opening file to decrypt
-            with open(f"{self.file}", "rb") as file:
-                encrypted_file = file.read()
-        except FileNotFoundError:
-            print(f"{self.file} not found!")
-            sys.exit()
 
         print(f"\nDecrypting {self.file_basename} ...")
 
@@ -123,6 +119,10 @@ class Crypto:
         removed_extension = self.file_basename.replace(self._crypto_extension, "")
         self.name, self.extension = os.path.splitext(removed_extension)
         decrypted_filename = f"{self.name}_decrypted{self.extension}"
+
+        # Creating a folder inside _decrypted_files folder with file name
+        dirname = f"{self._decrypted_files}{self.name}/"
+        self.make_dir(path=dirname)
 
         print(f"Saving {decrypted_filename} ...")
         # Opening the file in write mode and writing the decrypted data

@@ -1,11 +1,18 @@
 from cryptography.fernet import Fernet
 from cryptography.fernet import InvalidToken
+from pathlib import Path
 import os
 import sys
 
 
 class Crypto:
     _crypto_extension = ".hcf"
+    # Saving encrypted files here
+    _encrypted_files = "/encrypted/"
+    # Saving decrypted files here
+    _decrypted_files = "/decrypted/"
+    # Saving key files here
+    _key_files = "/keys/"
 
     def __init__(self, file: str):
         self.file_basename = os.path.basename(file)
@@ -17,18 +24,35 @@ class Crypto:
         self.extension = ext
         self._key = None
 
+    @classmethod
+    def make_dir(cls, path: str) -> None:
+        """
+        Create a new directory at this given path.
+        """
+        if not os.path.exists(path):
+            p = Path(path)
+            p.mkdir(exist_ok=True)
+
     def _generate_key(self):
         key = Fernet.generate_key()
         self._key = key
 
+        # Creating a folder inside _key_files folder with file name
+        self.make_dir(path=f"{self._key_files}{self.name}")
+        dirname = f"{self._key_files}{self.name}/"
+
         # Saving the generated key
-        with open(f"{self.name}_key.key", "wb") as key_file:
+        with open(f"{dirname}{self.name}.key", "wb") as key_file:
             key_file.write(key)
 
     def encrypt(self):
         """
         Encrypt file
         """
+
+        # Creating a folder inside _encrypted_files folder with file name
+        self.make_dir(path=f"{self._encrypted_files}{self.name}")
+        dirname = f"{self._encrypted_files}{self.name}/"
 
         try:
             # Opening file to encrypt
@@ -45,16 +69,18 @@ class Crypto:
         print(f"\nEncrypting {self.name}{self.extension} ...")
         # Encrypting the file
         encrypted = fernet.encrypt(original_file)
+        encrypted_filename = f"{self.name}{self.extension}{self._crypto_extension}"
 
-        print(f"Saving {self.name}{self.extension}{self._crypto_extension} ...")
         # Opening the file in write mode and writing the encrypted data
-        with open(f"{self.name}{self.extension}{self._crypto_extension}", "wb") as encrypted_file:
+        print(f"Saving {encrypted_filename} ...")
+        with open(f"{dirname}{encrypted_filename}", "wb") as encrypted_file:
             encrypted_file.write(encrypted)
 
         print(
             f"{self.name}{self.extension} was encrypted successfully.\n\n"
+            f"{encrypted_filename} was saved on {dirname}\n"
             "Note:\n"
-            f"1. Keep {self.name}_key.key somewhere safe!"
+            f"1. Keep {self.name}.key somewhere safe!"
         )
 
     def decrypt(self, key_file: str):

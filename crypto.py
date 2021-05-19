@@ -6,13 +6,16 @@ import sys
 
 
 class Crypto:
+    # Build paths inside the project like this: BASE_DIR / 'subdir'.
+    BASE_DIR = Path(__file__).resolve().parent
+
     _crypto_extension = ".hcf"
     # Save encrypted files here
-    _encrypted_files = "/encrypted/"
+    _encrypted_files = "encrypted"
     # Save decrypted files here
-    _decrypted_files = "/decrypted/"
+    _decrypted_files = "decrypted"
     # Save key files here
-    _key_files = "/keys/"
+    _key_files = "keys"
 
     def __init__(self, file: str):
         self.file_basename = os.path.basename(file)
@@ -29,21 +32,28 @@ class Crypto:
         """
         Create a new directory at this given path.
         """
-        if not os.path.exists(path):
-            p = Path(path)
-            p.mkdir(exist_ok=True)
+
+        p = Path(cls.BASE_DIR, path)
+
+        if not os.path.exists(p):
+            p.mkdir(parents=True, exist_ok=True)
 
     def _generate_key(self):
         key = Fernet.generate_key()
         self._key = key
 
         # Creating a folder inside _key_files folder with file name
-        dirname = f"{self._key_files}{self.name}/"
+        dirname = os.path.join(self._key_files, self.name)
         self.make_dir(path=dirname)
 
+        # Key file full path
+        p = os.path.join(self.BASE_DIR, dirname, f"{self.name}.key")
+
         # Saving the generated key
-        with open(f"{dirname}{self.name}.key", "wb") as key_file:
+        with open(p, "wb") as key_file:
             key_file.write(key)
+
+        print(f"\n{self.name}.key was saved on {dirname}")
 
     def encrypt(self):
         """
@@ -63,7 +73,7 @@ class Crypto:
         fernet = Fernet(self._key)
 
         # Creating a folder inside _encrypted_files folder with file name
-        dirname = f"{self._encrypted_files}{self.name}/"
+        dirname = os.path.join(self._encrypted_files, self.name)
         self.make_dir(path=dirname)
 
         print(f"\nEncrypting {self.name}{self.extension} ...")
@@ -71,14 +81,17 @@ class Crypto:
         encrypted = fernet.encrypt(original_file)
         encrypted_filename = f"{self.name}{self.extension}{self._crypto_extension}"
 
+        # Encrypted file full path
+        p = os.path.join(self.BASE_DIR, dirname, encrypted_filename)
+
         # Opening the file in write mode and writing the encrypted data
         print(f"Saving {encrypted_filename} ...")
-        with open(f"{dirname}{encrypted_filename}", "wb") as encrypted_file:
+        with open(p, "wb") as encrypted_file:
             encrypted_file.write(encrypted)
 
         print(
-            f"{self.name}{self.extension} was encrypted successfully.\n\n"
-            f"{encrypted_filename} was saved on {dirname}\n"
+            f"\n{self.name}{self.extension} was encrypted successfully!\n"
+            f"{encrypted_filename} was saved on {dirname}\n\n"
             "Note:\n"
             f"1. Keep {self.name}.key somewhere safe!"
         )
@@ -121,15 +134,18 @@ class Crypto:
         decrypted_filename = f"{self.name}_decrypted{self.extension}"
 
         # Creating a folder inside _decrypted_files folder with file name
-        dirname = f"{self._decrypted_files}{self.name}/"
+        dirname = os.path.join(self._decrypted_files, self.name)
         self.make_dir(path=dirname)
+
+        # Decrypted file full path
+        p = os.path.join(self.BASE_DIR, dirname, decrypted_filename)
 
         print(f"Saving {decrypted_filename} ...")
         # Opening the file in write mode and writing the decrypted data
-        with open(f"{dirname}{decrypted_filename}", "wb") as decrypted_file:
+        with open(p, "wb") as decrypted_file:
             decrypted_file.write(decrypted)
 
         print(
-            f"{self.file_basename} was decrypted successfully.\n"
+            f"\n{self.file_basename} was decrypted successfully!\n"
             f"{decrypted_filename} was saved on {dirname}"
         )

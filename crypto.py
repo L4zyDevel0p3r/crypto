@@ -7,11 +7,11 @@ import sys
 
 class Crypto:
     _crypto_extension = ".hcf"
-    # Saving encrypted files here
+    # Save encrypted files here
     _encrypted_files = "/encrypted/"
-    # Saving decrypted files here
+    # Save decrypted files here
     _decrypted_files = "/decrypted/"
-    # Saving key files here
+    # Save key files here
     _key_files = "/keys/"
 
     def __init__(self, file: str):
@@ -88,6 +88,10 @@ class Crypto:
         Decrypt file
         """
 
+        # Creating a folder inside _decrypted_files folder with file name
+        self.make_dir(path=f"{self._decrypted_files}{self.name}")
+        dirname = f"{self._decrypted_files}{self.name}/"
+
         try:
             # Opening key file and read key
             with open(f"{key_file}", "rb") as file:
@@ -118,10 +122,14 @@ class Crypto:
         # Removing _crypto_extension from file name
         removed_extension = self.file_basename.replace(self._crypto_extension, "")
         self.name, self.extension = os.path.splitext(removed_extension)
+        decrypted_filename = f"{self.name}_decrypted{self.extension}"
 
-        print(f"Saving {self.name}_decrypted{self.extension} ...")
+        print(f"Saving {decrypted_filename} ...")
         # Opening the file in write mode and writing the decrypted data
-        with open(f"{self.name}_decrypted{self.extension}", "wb") as decrypted_file:
+        with open(f"{dirname}{decrypted_filename}", "wb") as decrypted_file:
             decrypted_file.write(decrypted)
 
-        print(f"{self.file_basename} was decrypted successfully.")
+        print(
+            f"{self.file_basename} was decrypted successfully.\n"
+            f"{decrypted_filename} was saved on {dirname}"
+        )
